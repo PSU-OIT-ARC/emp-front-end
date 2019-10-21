@@ -369,7 +369,7 @@
 
 <style>
 
-.text-box label{
+/* .text-box label{
     display:block;
     font-size:12px;
 }
@@ -381,7 +381,7 @@
     font-size: 16px;
     width: 100%;
     box-sizing : border-box;
-}
+} */
 
 .text-box{
     padding:0px 0px 0px 0px;
@@ -403,7 +403,7 @@
     height:15px;
 }
 
-.submit{
+/* .submit{
     font-size:14px;
     font-weight: 500;
     letter-spacing:1px;
@@ -431,7 +431,7 @@
     border-radius:4px;
     float:right;
     box-sizing:border-box;
-}
+} */
 
 /* Large tablets and desktops */
 @media (min-width: 735px) {
