@@ -1,12 +1,14 @@
 <template>
   <div id="app">
+    <header class="row">
+      <sso :app="$appName" :env="$envName" appRoles="Y" loginRequired="N" autoClaim="Y"  />
+    </header>
+    <!-- <Navbar /> -->
 
-    <Navbar />
-
-    <div id="main" class="main-content-container">
-      <ul id="app-navigation" class="nav">
+    <div class="container shadow">
+      <!-- <ul id="app-navigation" class="nav">
         <li><router-link to="/login">Login</router-link></li>
-      </ul>
+      </ul> -->
       <router-view  />
     </div>
 

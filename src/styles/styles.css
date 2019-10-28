@@ -246,6 +246,18 @@ input[type=checkbox] {
   transform: scale(1.5);
 }
 
+header {
+  grid-column: span 2;
+  padding: 20px 30px;
+}
+.content {
+  grid-area: content;
+  display: grid;
+  grid-row: row 3;
+  grid-row-start: 1;
+  grid-row-end: 3;
+  border: 1px solid #EEE;
+}
 
 /*****************************
 Site-wide Media Queried Styles
