@@ -4,9 +4,10 @@ import router from './router'
 import store from './store'
 import styles from './styles/styles.css'
 import axios from 'axios'
-import BootstrapVue from 'bootstrap-vue'
+import {BootstrapVue, LinkPlugin } from 'bootstrap-vue'
 
 Vue.use(BootstrapVue)
+Vue.use(LinkPlugin)
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
 

@@ -9,6 +9,7 @@
       <!-- <ul id="app-navigation" class="nav">
         <li><router-link to="/login">Login</router-link></li>
       </ul> -->
+      <StickyNavbar/>
       <router-view  />
     </div>
 
