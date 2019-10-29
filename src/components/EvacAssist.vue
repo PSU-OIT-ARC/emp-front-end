@@ -1,10 +1,12 @@
 <template>
     <div id="EA-registry" class="page-component">
+        <div class="page-title">
         <h1 style="text-align:center">Evacuation Assistance Registry<br/>
             <small>
                 A resource for individuals with disabilities and others with access and functional needs.
             </small>
         </h1>
+        </div>
 
         <div class="textblock" id="introduction-field">
             <h2>Introduction</h2>
@@ -90,22 +92,26 @@
 
         <div class="textblock" id="registry-field">
         <h2>Registry</h2>
-           <b>If you are a person with a disability, or someone with an access or functional need, to the extent that it
-               could prevent or hinder you from providing for your own evacuation,
+        <b>If you are a person with a disability, or someone with an access or functional need, to the extent that it
+            could prevent or hinder you from providing for your own evacuation,
             would you like your information to be available for use by emergency responders as someone who may need
             physical assistance during an evacuation?</b><br />
-            <div>
-                <label class="checkbox-card">
-                    <input type="checkbox" name="register-checkbox" v-model="regbox" v-bind:id="regbox" true-value="Y" false-value="N"/>
-                    Yes, make my information accessible to emergency responders.
-                </label>
+
+            <div class="text-center">
+                <div class="checkbox-card">
+                    <label code="alert.index.textOptOut#LABEL" for="make-information-accessible-checkbox" alt="Yes, make my information accessible to emergency responders." specialelement="true">
+                        <span class="custom-checkbox"></span>
+                        <input id="make-information-accessible-checkbox" type="checkbox" name="register-checkbox" v-model="regbox" true-value="Y" false-value="N"/>
+                        &nbsp;Yes, make my information accessible to emergency responders.
+                    </label>
+                </div>
             </div>
-        </div><br>
+        </div>
         <!-- Buttons are here -->
 
         <div class="button-holder" >
-            <button type="button" class="submit" v-on:click="submit()">Submit</button>
-            <button type="button" class="reset" v-on:click="fillEvacAssistInformation()">Reset</button>
+            <button type="button" class="btn btn-lg btn-primary" v-on:click="submit()">Submit</button>&nbsp;&nbsp;&nbsp;
+            <button type="button" class="btn btn-lg btn-default" v-on:click="fillEvacAssistInformation()">Reset</button>
         </div>
 
     </div>
@@ -252,7 +258,7 @@ and that is pretty standard amongst other CSS properties it seems-->
         /* margin-left:16px;
         margin-right:16px; */
         padding:20px;
-        border-radius:3px;
+        border-radius:5px;
     }
 
     /* incompatible with IE8 */

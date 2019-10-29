@@ -1,13 +1,24 @@
 <template>
     <div id="emergency-contacts-list" class="page-component">
+      <div class="page-title">
         <h1 style="text-align:center">
           Emergency Contact List
         </h1>
+      </div>
 
-        <div id="contact-display-container">
-          <div v-for="(contactObject, index) in contacts" :key="contactObject.surrogateId">
+        <div id="contact-display-container" v-if="contacts.length > 0" >
+          <b-table striped hover :items="contacts" :fields="fields">
+            <template v-slot:cell(name)="data">
+              {{ data.value }}
+            </template>
+            <template v-slot:cell(actions)="row">
+              <b-button @click="meditContact(row)">Edit</b-button>
+              <b-button @click="mdeleteContact(row.index)">Delete</b-button>
+            </template>
+          </b-table>
+          <!-- <div v-for="(contactObject, index) in contacts" :key="contactObject.surrogateId">
 
-            <!-- Show contact First and Last name if not selected -->
+            <-- Show contact First and Last name if not selected ->
             <div
               v-show="activeIndex !== index"
               class="contact-display"
@@ -20,10 +31,10 @@
                 <img src="../images/trashcan.svg" alt="delete contact" />
               </button>
 
-            </div>
+            </div> -->
 
             <!-- Duration is a millisecond value -->
-            <CollapseTransition :duration="1000">
+            <!-- <CollapseTransition :duration="1000"> -->
 
             <!-- Show contact in form if selected -->
             <EmergContactForm
@@ -36,12 +47,17 @@
               :isFetching="isFetching"
               @updateContact="updateContact"
             />
-          </CollapseTransition>
+          <!-- </CollapseTransition> -->
 
-          </div>
-          <button @click="clearContactForm()">
+          <!-- </div> -->
+          <!-- <button @click="clearContactForm()">
             Add Contact
-          </button>
+          </button> -->
+        </div>
+        <div v-else>
+          <div class="alert alert-info">
+            <p>You have no emergency contacts yet.</p>
+          </div>
         </div>
     </div>
 </template>
@@ -57,6 +73,88 @@
             EmergContactForm,
             CollapseTransition
         },
+        data: function() {
+            return {
+                // State flag which lets us know when all dropdown & contact resources are retrieved
+                isFetching: true,
+                resourcesToFetch: 4,
+
+                // List which holds all contact objects
+                contacts: [
+                  {
+                    'firstName': 'John',
+                    'lastName': 'Doe',
+                    'streetLine1': '123 N Ave',
+                    'streetLine2': '',
+                    'streetLine3': '',
+                    'city': 'Portland',
+                    'state': 'OR',
+                    'zip': '12345',
+                    'phoneNumber': '503-123-4567'
+                  },
+                  {
+                    'firstName': 'Jane',
+                    'lastName': 'Doe',
+                    'streetLine1': '125 N Ave',
+                    'streetLine2': '',
+                    'streetLine3': '',
+                    'city': 'Portland',
+                    'state': 'OR',
+                    'zip': '12345',
+                    'phoneNumber': '503-234-5678'
+                  }
+                ],
+                // List of fields to display
+                fields: [
+                  {
+                    key: 'name',
+                    label: 'Full Name',
+                    formatter: 'fullname'
+                  },
+                  {
+                    key: 'address',
+                    label: 'Address',
+                    formatter: 'address'
+                  },
+                  'phoneNumber',
+                  {
+                    key: 'actions',
+                    label: 'Actions'
+                  }
+                ],
+
+                // The contact which occupies the form (-1 means none do by default)
+                activeIndex: -1,
+
+                // State flag which tells us not to submit a surrogateId on update the backend
+                addingContact: false,
+
+                localToAPIMap: {
+                  'surrogateId': 'surrogate_id',
+                  'pidm': 'pidm',
+                  'contactPriority': 'priority',
+                  'firstName': 'first_name',
+                  'middleName': 'mi',
+                  'lastName': 'last_name',
+                  'city': 'city',
+                  'phoneNumber': 'phone_number',
+                  'zipCode': 'zip',
+                  'streetLine1': 'street_line1',
+                  'streetLine2': 'street_line2',
+                  'streetLine3': 'street_line3',
+                  'relation': 'relt_code',
+                  'state': 'stat_code',
+                  'country': 'natn_code',
+                  'phoneCountryCode': 'ctry_code_phone',
+                  'phoneAreaCode': 'phone_area',
+                  'phoneExtension': 'phone_ext'
+                },
+
+                stateArray: [],
+                relationArray: [],
+                countryArray: []
+            }
+        },
 
         mounted() {
           // Retrieve contacts from backend and store in this.contacts[]
@@ -67,6 +165,30 @@
         },
 
         methods: {
+          fullname(item, key, value) {
+            return `${value.firstName} ${value.lastName}`
+          },
+          address(item, key, value) {
+            let full_address = `${value.streetLine1}`
+            if (value.streetLine2) {
+              full_address += `${value.streetLine2}`
+            }
+            if (value.streetLine3) {
+              full_address += `${value.streetLine3}`
+            }
+            if (value.city && value.state && value.zip) {
+              full_address += `${value.city}, ${value.state} ${value.zip}`
+            }
+            return full_address
+          },
+          meditContact(item) {
+            console.log("EditContact" + JSON.stringify(item));
+            alert(JSON.stringify(item));
+          },
+          mdeleteContact(index) {
+            console.log("Delete contact: " + index);
+            this.contacts.splice(index, 1);
+          },
             clearContactForm() {
               var vm = this;
 
@@ -258,47 +380,7 @@
           resourcesToFetch: function(count) {this.isFetching = count !== 0}
         },
 
-        data: function() {
-            return {
-                // State flag which lets us know when all dropdown & contact resources are retrieved
-                isFetching: true,
-                resourcesToFetch: 4,
 
-                // List which holds all contact objects
-                contacts: [],
-
-                // The contact which occupies the form (-1 means none do by default)
-                activeIndex: -1,
-
-                // State flag which tells us not to submit a surrogateId on update the backend
-                addingContact: false,
-
-                localToAPIMap: {
-                  'surrogateId': 'surrogate_id',
-                  'pidm': 'pidm',
-                  'contactPriority': 'priority',
-                  'firstName': 'first_name',
-                  'middleName': 'mi',
-                  'lastName': 'last_name',
-                  'city': 'city',
-                  'phoneNumber': 'phone_number',
-                  'zipCode': 'zip',
-                  'streetLine1': 'street_line1',
-                  'streetLine2': 'street_line2',
-                  'streetLine3': 'street_line3',
-                  'relation': 'relt_code',
-                  'state': 'stat_code',
-                  'country': 'natn_code',
-                  'phoneCountryCode': 'ctry_code_phone',
-                  'phoneAreaCode': 'phone_area',
-                  'phoneExtension': 'phone_ext'
-                },
-
-                stateArray: [],
-                relationArray: [],
-                countryArray: []
-            }
-        },
     }
 </script>
 
@@ -324,7 +406,7 @@
 }
 
 .delete {
-  height: 36px;  
+  height: 36px;
   width: 36px;
 
   padding-left:0px;

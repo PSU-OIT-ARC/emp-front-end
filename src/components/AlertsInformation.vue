@@ -1,7 +1,8 @@
-
 <template>
   <div id="alert-info" class="page-component">
-    <h1 style="text-align:center">PSU Alert Emergency Notification System Registration</h1><br>
+    <div class="page-title">
+      <h1 style="text-align:center">PSU Alert Emergency Notification System Registration</h1><br>
+    </div>
     <div id="information-1" class="textblock">
       <p>
       PSU Alert is an emergency communications system designed to disseminate
@@ -79,7 +80,7 @@
     <input type="hidden" name="SYNCHRONIZER_TOKEN" value="ff5b0d0c-6be6-4a67-b8a7-f0dafade3fd5" id="SYNCHRONIZER_TOKEN">
     <input type="hidden" name="SYNCHRONIZER_URI" value="/gen/alert/index" id="SYNCHRONIZER_URI">
     <h2>
-      Subscribe to PSU Alert text messages<small><span style="color:red">*</span></small>
+      Subscribe to PSU Alert Text Messages<small><span style="color:red">*</span></small>
     </h2>
     <p class="text-muted">
         <span style="color:red"><b>*Required:</b></span>
@@ -115,11 +116,11 @@
         situations, such as campus closures or threats to your safety (e.g.
         active shooter, evacuation, etc.).</p>
         <br>
-        <div class="checkbox-card">
-          <label code="alert.index.textOptOut#LABEL" alt="I acknowledge that I have read and understand the risks described above and I choose to opt out of receiving PSU Alert notifications via text message." specialelement="true">
+        <div class="checkbox-card text-center">
+          <label code="alert.index.textOptOut#LABEL" for="opt-out" alt="I acknowledge that I have read and understand the risks described above and I choose to opt out of receiving PSU Alert notifications via text message." specialelement="true">
             <span class="custom-checkbox"></span>
-            <input v-model="smsStatusInd" type="checkbox" name="smsStatusInd" id="smsStatusInd" true-value="Y" false-value="N"/>
-            I acknowledge that I have read and understand the risks described
+            <input id="opt-out" v-model="smsStatusInd" type="checkbox" name="smsStatusInd" true-value="Y" false-value="N"/>
+            &nbsp;I acknowledge that I have read and understand the risks described
             above and I choose to opt out of receiving PSU Alert notifications
             via text message.
           </label>
@@ -128,6 +129,7 @@
       </div>
     </div>
   </div>
+  <hr/>
 
   <div id="voice-information" class="textblock boxed">
     <h2>Subscribe to PSU Alert Voice Messages</h2>
@@ -169,8 +171,12 @@ All <i>@pdx.edu</i> email addresses are automatically subscribed to receive PSU 
 
   <div class="button-holder">
   <fieldset class="form-group" id="formButtons" style="border:0px transparent none;">
-    <button type="button" class="submit" id="reset-btn" v-on:click="submitAlertsInformation()">Submit</button>
-    <button type="button" class="reset" id="submit-btn" v-on:click="fillAlertsInformation()">Reset</button>
+    <!-- <button type="button" class="submit" id="reset-btn" v-on:click="submitAlertsInformation()">Submit</button>
+    <button type="button" class="reset" id="submit-btn" v-on:click="fillAlertsInformation()">Reset</button> -->
+
+    <button type="button" class="btn btn-lg btn-primary" v-on:click="submitAlertsInformation()">Submit</button>&nbsp;&nbsp;&nbsp;
+    <button type="button" class="btn btn-lg btn-default" v-on:click="fillAlertsInformation()">Reset</button>
+
    </fieldset>
    </div>
    <br>

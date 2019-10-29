@@ -1,16 +1,16 @@
 <template>
 
   <div id="emergency-information" class="main-content">
-    <TimeoutPopup
+    <!-- <TimeoutPopup
       :timeLimit="9999"
       @timedOut.once="endSession"
-    />
-    <SubmitPopup />
-
+    /> -->
+    <!-- <SubmitPopup /> -->
+    <StickyNavbar />
     <EvacAssist />
     <AlertsInformation />
     <EmergencyContactList />
-    <StickyNavbar />
+
   </div>
 </template>
 
