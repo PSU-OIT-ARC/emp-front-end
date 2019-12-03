@@ -149,6 +149,7 @@
     <small class="text-muted">Standard rates apply. Calls will come from the phone number: 1-877-725-9111.</small>
   </div>
 
+  <hr />
   <div id="email-information" class="textblock boxed">
     <h2>Subscribe to PSU Alert Emails</h2>
     <p class="text-muted">
