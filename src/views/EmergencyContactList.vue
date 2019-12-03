@@ -2,17 +2,16 @@
     <div id="emergency-contacts-list" class="page-component">
       <div class="page-title">
         <h1 style="text-align:center">
-          Emergency Contact List
+          Emergency Contacts
         </h1>
       </div>
-
         <div id="contact-display-container" v-if="contacts.length > 0" >
           <b-table striped hover :items="contacts" :fields="fields">
             <template v-slot:cell(name)="data">
               {{ data.value }}
             </template>
             <template v-slot:cell(actions)="row">
-              <b-button @click="meditContact(row)">Edit</b-button>
+              <b-button @click="meditContact(row.item)">Edit</b-button>
               <b-button @click="mdeleteContact(row.index)">Delete</b-button>
             </template>
           </b-table>
@@ -37,7 +36,7 @@
             <!-- <CollapseTransition :duration="1000"> -->
 
             <!-- Show contact in form if selected -->
-            <EmergContactForm
+            <!-- <EmergContactForm
               v-show="activeIndex === index"
               id="emergency-contact-form"
               :activeContact="contactObject"
@@ -46,7 +45,7 @@
               :stateArray="stateArray"
               :isFetching="isFetching"
               @updateContact="updateContact"
-            />
+            /> -->
           <!-- </CollapseTransition> -->
 
           <!-- </div> -->
@@ -58,6 +57,19 @@
           <div class="alert alert-info">
             <p>You have no emergency contacts yet.</p>
           </div>
+        </div>
+        <hr />
+        <div>
+          <h2>Edit/Create Contact</h2>
+          <emerg-contact-form
+              v-show="activeIndex > -1"
+              id="emergency-contact-form"
+              :activeContact="contactObject"
+              :countryArray="countryArray"
+              :relationArray="relationArray"
+              :stateArray="stateArray"
+              :isFetching="isFetching"
+              @updateContact="updateContact"/>
         </div>
     </div>
 </template>
@@ -104,6 +116,7 @@
                     'phoneNumber': '503-234-5678'
                   }
                 ],
+                contactObject: {},
                 // List of fields to display
                 fields: [
                   {
@@ -124,7 +137,7 @@
                 ],
 
                 // The contact which occupies the form (-1 means none do by default)
-                activeIndex: -1,
+                activeIndex: 0,
 
                 // State flag which tells us not to submit a surrogateId on update the backend
                 addingContact: false,
@@ -183,6 +196,7 @@
           },
           meditContact(item) {
             console.log("EditContact" + JSON.stringify(item));
+            this.contactObject = item
             alert(JSON.stringify(item));
           },
           mdeleteContact(index) {
@@ -216,9 +230,14 @@
                 baseURL: 'http://127.0.0.1:8000/getRelations/',
               })
               .then(response => {
-                var relationCodes = response.data
+                // var relationCodes = response.data
+                let relationCodes = []
+                for (var i = 0; i < response.data.length; i++) {
+                  relationCodes.push({value: response.data[i].code, text: response.data[i].description});
+                }
                 this.relationArray = relationCodes
-                this.relationArray.unshift({ code: "", description: "N/A" })
+                // this.relationArray.unshift({ code: "", description: "N/A" })
+                this.relationArray.unshift({ value: null, text: "N/A" })
 
                 this.resourcesToFetch -= 1
               })
@@ -231,9 +250,13 @@
                 baseURL: 'http://127.0.0.1:8000/getStateCodes/',
               })
               .then(response => {
-                var stateCodes = response.data
+                // var stateCodes = response.data
+                let stateCodes = []
+                for (var i = 0; i < response.data.length; i++) {
+                  stateCodes.push({value: response.data[i].id, text: " " + response.data[i].value + "(" + response.data[i].id + ")"});
+                }
                 this.stateArray = stateCodes
-                this.stateArray.unshift({ id: "", value: "N/A" })
+                this.stateArray.unshift({ value: null, text: "N/A" })
 
                 this.resourcesToFetch -= 1
               })
@@ -246,11 +269,15 @@
                 baseURL: 'http://127.0.0.1:8000/getNationCodes/',
               })
               .then(response => {
-                var countryCodes = response.data
+                // var countryCodes = response.data
+                let countryCodes = []
+                for (var i = 0; i < response.data.length; i++) {
+                  countryCodes.push({value: response.data[i].id, text: response.data[i].value + " (" + response.data[i].phone_code + ")"});
+                }
                 this.countryArray = countryCodes
                 // adding N/A to dropdowns, implementation could be better than hardcoded, undefined on svgimg would pass loading the image
                 // need to check "N/A" value on phone_code whether it pass successfully
-                this.countryArray.unshift({ id: "", value: "N/A", phone_code: "N/A", svgimg: undefined })
+                this.countryArray.unshift({ value: null, text: "N/A", phone_code: "N/A", svgimg: undefined })
 
                 this.resourcesToFetch -= 1
               })
@@ -276,12 +303,12 @@
                     let data = receivedContacts[index]
 
                     // Create object to hold contact information
-                    let contactObject = {}
+                    // let contactObject = {}
 
                     // Fill object mapping from API names to more readable names
                     for(let APIKey in data) {
                       let localKey = vm.APIToLocal(APIKey)
-                      contactObject[localKey] = data[APIKey]
+                      vm.contactObject[localKey] = data[APIKey]
                     }
 
                     vm.contacts.push(contactObject)

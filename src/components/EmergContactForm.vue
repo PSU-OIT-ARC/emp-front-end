@@ -1,8 +1,81 @@
 <template>
     <div id="contact-form">
-      <div id="form-body">
+      <div>
 
-        <div class="text-box fnamebox">
+        <div class="form-row">
+          <div class="form-group col-md-4">
+            <label for="firstName">First name</label>
+            <input type="text" class="form-control" id="firstName" v-model="firstName"/>
+          </div>
+
+          <div class="form-group col-md-3">
+            <label for="middleName">Middle name</label>
+            <input type="text" class="form-control" id="middleName" v-model="middleName"/>
+          </div>
+
+          <div class="form-group col-md-5">
+            <label for="lastName">Last name</label>
+            <input type="text" class="form-control" id="lastName" v-model="lastName"/>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="relationship">Relationship</label>
+          <b-form-select class="form-control" id="relationship" :options="relationArray"
+              aria-placeholder="Select a relationship" placeholder="Select a relationship" v-model="selectedRelation" />
+        </div>
+
+        <div class="form-group">
+          <label for="streetAddress1">Address 1</label>
+          <input type="text" class="form-control" id="streetAddress1" placeholder="Street Address" v-model="streetLine1"/>
+        </div>
+
+        <div class="form-group">
+          <label for="streetAddress2">Address 2</label>
+          <input type="text" class="form-control" id="streetAddress2" placeholder="Apt/Bldg #" v-model="streetLine2"/>
+        </div>
+
+        <div class="form-group">
+          <label for="streetAddress3">Address 3</label>
+          <input type="text" class="form-control" id="streetAddress3" placeholder="Region" v-model="streetLine3"/>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group col-md-3">
+            <label for="city">City</label>
+            <input type="text" class="form-control" id="city" placeholder="City" v-model="city"/>
+          </div>
+
+          <div class="form-group col-md-2">
+            <label for="zipcode">Zip/Postal code</label>
+            <input type="text" class="form-control" id="zipcode" placeholder="97201" v-model="zipCode"/>
+          </div>
+
+          <div class="form-group col-md-3">
+            <label for="state">State</label>
+            <b-form-select class="form-control" id="state" :options="stateArray"
+                aria-placeholder="Select state" placeholder="Select state" v-model="selectedState" />
+          </div>
+
+          <div class="form-group col-md-4">
+            <label for="country">Country</label>
+            <b-form-select class="form-control" id="country" :options="countryArray"
+                v-model="selectedCountry" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="phoneNumber">Phone number</label>
+          <input type="text" class="form-control" id="phoneNumber" placeholder="+Country code - Area code - Phone number" v-model="phoneNumber"/>
+        </div>
+
+        <div class="form-group">
+            <label for="contactPriority">Contact priority</label>
+            <input id="contactPriority" class="form-control" type="number" placeholder="0" v-model.number="contactPriority" min="1"/>
+        </div>
+
+
+        <!-- <div class="text-box fnamebox">
           <label for="first-name">
             First Name
           </label>
@@ -126,13 +199,15 @@
               Contact Priority
             </label>
             <input id="contact-priority"  type="number" placeholder="" v-model.number="contactPriority" min="1"/>
-        </div>
+        </div> -->
 
-    </div>
-    <div class="button-holder">
-        <button type="button" class="submit" @click="updateContact()">Submit</button>
-        <button type="button" class="reset" @click="resetContact()">Reset</button>
-    </div>
+      </div>
+      <div class="button-holder">
+        <button type="button" class="btn btn-lg btn-primary" v-on:click="updateContact()">Submit</button>&nbsp;&nbsp;&nbsp;
+        <button type="button" class="btn btn-lg reset" @click="resetContact()">Reset Form</button>
+          <!-- <button type="button" class="submit" @click="updateContact()">Submit</button>
+          <button type="button" class="reset" @click="resetContact()">Reset</button> -->
+      </div>
     </div>
 </template>
 
@@ -140,6 +215,7 @@
 
 <script>
     import Dropdown from '@/components/Dropdown.vue'
+    import axios from 'axios'
 
     export default {
         name: "EmergContactForm.vue",
@@ -179,7 +255,7 @@
                 country:                null,
                 phoneNumber:            null,
                 contactPriority:        null,
-
+                // relationArray: [],
                 /*
                   Here we'll hold objects representing country, state, relation,
                   and phoneCountryCode. e.g. {name: "USA", code: "LUS", svgimg: "us.svg"}
@@ -224,6 +300,7 @@
             // Deep clone the object in case we need a reset
             this.contactCopy = JSON.parse(JSON.stringify(this.activeContact))
             this.fillForm(this.activeContact)
+            // this.getRelationDropdownOptions();
         },
 
 
@@ -258,6 +335,21 @@
 
               this.updateDropdowns()
             },
+
+            // getRelationDropdownOptions() {
+            //   axios({
+            //     method: 'get',
+            //     baseURL: 'http://127.0.0.1:8000/getRelations/',
+            //   })
+            //   .then(response => {
+            //     var relationCodes = response.data
+            //     this.relationArray = relationCodes
+            //     this.relationArray.unshift({ code: "", description: "N/A" })
+
+            //     this.resourcesToFetch -= 1
+            //   })
+            //   .catch(error => console.log(error.toString()))
+            // },
 
             // Assign selected dropdown elements by mapping codes to their dropdown options
             updateDropdowns() {
