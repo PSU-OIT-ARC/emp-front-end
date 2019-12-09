@@ -3,6 +3,8 @@
     <div class="page-title">
       <h1 style="text-align:center">PSU Alert Emergency Notification System Registration</h1><br>
     </div>
+    <b-card bg-variant="light">
+    <b-card-text>
     <div id="information-1" class="textblock">
       <p>
       PSU Alert is an emergency communications system designed to disseminate
@@ -73,8 +75,10 @@
       </li>
     </ul>
   </div>
+  </b-card-text>
+  </b-card>
 
-  <hr/>
+  <br/>
 
   <div id="text-information" class="textblock boxed">
     <input type="hidden" name="SYNCHRONIZER_TOKEN" value="ff5b0d0c-6be6-4a67-b8a7-f0dafade3fd5" id="SYNCHRONIZER_TOKEN">
@@ -86,46 +90,60 @@
         <span style="color:red"><b>*Required:</b></span>
         Either enter a text message number or opt-out by reading the notice and checking the box.
     </p>
-    <br/>
 
-    <b>Text Message Opt In</b>
-    <br/>
-    <br/>
-    <div class="row">
-      <div class="col-md-3">
-        <label for="smsDevice1" code="alert.index.textMessage#LABEL" alt="Text Message Number" specialelement="true">Text Message Number</label>
-        <input v-model="smsNumber" type="tel" placeholder="123-456-7890" class="form-control" id="smsDevice1" name="smsDevice1" maxlength="12" value="" pattern="\d{3}-?\d{3}-?\d{4}" title="10-digit phone number" onkeyup="this.value = formatTelephone(this.value);" aria-label="10-digit phone number"/>
-      </div>
-    </div>
-    <br/>
-    <small class="text-muted">
-      Standard text message rates apply. Text messages will come from one of two IDs: 231-77 or 630-79.
-      <br/>
-    </small>
-
-    <br/><p><b>OR</b></p><br/>
+    <p>Please choose one:</p>
 
     <div class="row">
-      <div class="col">
-        <b>Text Message Opt Out</b>
-
-        <p>Text messages are an extremely effective way to distribute emergency
-        notifications quickly. If you choose not to register your cell phone
-        number to receive PSU Alert notifications via text message, you may
-        not get necessary information to stay safe in emergency or threatening
-        situations, such as campus closures or threats to your safety (e.g.
-        active shooter, evacuation, etc.).</p>
-        <br>
-        <div class="checkbox-card text-center">
-          <label code="alert.index.textOptOut#LABEL" for="opt-out" alt="I acknowledge that I have read and understand the risks described above and I choose to opt out of receiving PSU Alert notifications via text message." specialelement="true">
-            <span class="custom-checkbox"></span>
-            <input id="opt-out" v-model="smsStatusInd" type="checkbox" name="smsStatusInd" true-value="Y" false-value="N"/>
-            &nbsp;I acknowledge that I have read and understand the risks described
-            above and I choose to opt out of receiving PSU Alert notifications
-            via text message.
-          </label>
+      <div class="col-md-6" id="text-opt-in-col">
+        <h3>Text Message Opt In</h3>
+        <div id="text-opt-in">
+          <label for="smsDevice1" code="alert.index.textMessage#LABEL" alt="Text Message Number" specialelement="true">Text Message Number</label>
+          <input v-model="smsNumber"
+                 type="tel"
+                 placeholder="555-555-5555"
+                 class="form-control"
+                 id="smsDevice1"
+                 name="smsDevice1"
+                 maxlength="12"
+                 value=""
+                 pattern="\d{3}-?\d{3}-?\d{4}"
+                 title="10-digit phone number"
+                 onkeyup="this.value = formatTelephone(this.value);"
+                 aria-label="10-digit phone number"
+                 :disabled="smsStatusInd"/>
+        <p>
+          <small class="text-muted">
+            Standard text message rates apply. Text messages will come from one of two IDs: 231-77 or 630-79.
+          </small>
+        </p>
         </div>
-        <br style="clear: both;">
+      </div>
+
+
+    <!-- <br/><p><b>OR</b></p><br/> -->
+
+
+      <div class="col-md-6">
+        <h3>Text Message Opt Out</h3>
+        <div id="text-opt-out">
+          <p>Text messages are an extremely effective way to distribute emergency
+          notifications quickly. If you choose not to register your cell phone
+          number to receive PSU Alert notifications via text message, you may
+          not get necessary information to stay safe in emergency or threatening
+          situations, such as campus closures or threats to your safety (e.g.
+          active shooter, evacuation, etc.).</p>
+
+          <div class="checkbox-card text-center">
+            <label code="alert.index.textOptOut#LABEL" for="opt-out" alt="I acknowledge that I have read and understand the risks described above and I choose to opt out of receiving PSU Alert notifications via text message." specialelement="true">
+              <span class="custom-checkbox"></span>
+              <input id="opt-out" v-model="smsStatusInd" type="checkbox" name="smsStatusInd"/>
+              &nbsp;&nbsp;I acknowledge that I have read and understand the risks described
+              above and <b>I choose to opt out</b> of receiving PSU Alert notifications
+              via text message.
+            </label>
+          </div>
+          <br style="clear: both;">
+        </div>
       </div>
     </div>
   </div>
@@ -159,28 +177,42 @@ All <i>@pdx.edu</i> email addresses are automatically subscribed to receive PSU 
 
     <div class="row">
       <div class="col-md-6">
-        <label for="psuemail" code="alert.index.psuEmail#LABEL" alt="PSU email address" specialelement="true">PSU email address</label>
-        <input v-model="psuEmailAddress" type="email" placeholder="PSU email address" class="form-control" id="psuemail" value="leake@pdx.edu" readonly="">
+        <!-- <label for="psuemail" code="alert.index.psuEmail#LABEL" alt="PSU email address" specialelement="true">PSU email address</label>
+        <input v-model="psuEmailAddress" type="email" placeholder="PSU email address" class="form-control" id="psuemail" value="leake@pdx.edu" readonly=""> -->
+        <p>PSU email address:</p>
+        {{ psuEmailAddress }}
       </div>
       <div class="col-md-6">
-        <label for="emailAddress" code="alert.index.emailAddress#LABEL" alt="Alternate email address" specialelement="true">Alternate email address</label>
+        <label for="emailAddress" code="alert.index.emailAddress#LABEL" alt="Alternate email address" specialelement="true">Alternate email address:</label>
         <input v-model="alternateEmailAddress" type="email" placeholder="Alternate email address" class="form-control" id="emailAddress" name="emailAddress" value="">
       </div>
     </div>
     <br style="clear: both;">
   </div>
+  <hr/>
+  <div class="alert alert-warning text-center">
+      <p><span style="font-size:1.2em;font-weight:bold">PSU Alert Subscriptions Summary</span></p>
+      <p>Text messages:<br/>
+      <b>{{ textMessagesSummary }}</b></p>
 
+      <p>Voice messages:<br/>
+      <b>{{ voiceMessagesSummary }}</b></p>
+
+      <p>Email alerts:<br/>
+      <b>{{ emailAlertsSummary }}</b></p>
+  </div>
   <div class="button-holder">
   <fieldset class="form-group" id="formButtons" style="border:0px transparent none;">
     <!-- <button type="button" class="submit" id="reset-btn" v-on:click="submitAlertsInformation()">Submit</button>
     <button type="button" class="reset" id="submit-btn" v-on:click="fillAlertsInformation()">Reset</button> -->
 
-    <button type="button" class="btn btn-lg btn-primary" v-on:click="submitAlertsInformation()">Submit</button>&nbsp;&nbsp;&nbsp;
+    <button type="button" class="btn btn-lg btn-primary" v-on:click="submitAlertsInformation()" :disabled="!formComplete">Submit</button>&nbsp;&nbsp;&nbsp;
     <button type="button" class="btn btn-lg btn-default" v-on:click="fillAlertsInformation()">Reset</button>
 
    </fieldset>
    </div>
    <br>
+
     <hr/>
    <div id="emergency-response-information">
      <h2>Emergency Response Planning</h2>
@@ -199,19 +231,62 @@ import axios from 'axios';
 
 export default {
   name: 'PSUAlertInformation',
-  model: {
-    event: 'submit'
+  // model: {
+  //   event: 'submit'
+  // },
+  props: {
+    foo: "foo"
   },
-  props: {},
 
-  data() {
+  data: function() {
     return {
+      bar: 'FOO!',
       smsNumber: '',
-      smsStatusInd: '',
+      smsStatusInd: false,
       phoneNumber: '',
       alternatePhoneNumber: '',
-      psuEmailAddress: '',
-      alternateEmailAddress: ''
+      psuEmailAddress: 'johndoe@pdx.edu',
+      alternateEmailAddress: '',
+      formComplete: false,
+    }
+  },
+
+  computed: {
+    textMessagesSummary() {
+      if (!this.smsStatusInd && this.smsNumber.trim().length < 10) {
+        return "INCOMPLETE"
+      } else {
+        this.formComplete = true;
+      }
+      if (this.smsStatusInd) {
+        return "OPT OUT"
+      }
+      else {
+        return "OPT IN with number: " + this.smsNumber
+      }
+    },
+    voiceMessagesSummary() {
+      if (this.phoneNumber.trim().length < 1 && this.alternatePhoneNumber.trim().length < 1) {
+        return "NOT SUBSCRIBED"
+      }
+      else {
+        let primary = this.phoneNumber;
+        let alternate = this.alternatePhoneNumber;
+        if (primary.trim().length < 1) {
+          primary = 'N/A'
+        }
+        if (alternate.trim().length < 1) {
+          alternate = 'N/A'
+        }
+        return "SUBSCRIBED with Primary Number: " + primary + ", Alternate number: " + alternate;
+      }
+    },
+    emailAlertsSummary() {
+      let alternate = this.alternateEmailAddress;
+      if (alternate.trim().length < 1) {
+        alternate = 'N/A'
+      }
+      return "SUBSCRIBED with PSU email: " + this.psuEmailAddress + "; alternate email: " + alternate;
     }
   },
 
@@ -298,4 +373,21 @@ export default {
     border-radius:5px;
 }
  */
+
+#text-opt-in, #text-opt-out {
+  padding: 10px;
+}
+
+@media screen and (max-width: 767px) {
+  #text-opt-in-col {
+    border-right: 0;
+    border-bottom: 1px solid #DDD;
+  }
+}
+@media screen and (min-width: 768px) {
+  #text-opt-in-col {
+    border-right: 1px solid #DDD;
+    border-bottom: 0;
+  }
+}
 </style>
