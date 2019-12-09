@@ -46,7 +46,7 @@ a {
   /* Make element obey sticky positioning */
   position: sticky;
   position: -webkit-sticky; /* Safari */
-  top: 70px;
+  top: 78px;
   bottom: 0px;
   width: 100vw;
 
