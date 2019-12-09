@@ -64,7 +64,7 @@ a {
 
   /* Style */
   background-color: #8c9516;
-
+  z-index: 99;
 }
 
 #nav-container {
