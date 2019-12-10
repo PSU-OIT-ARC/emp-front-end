@@ -92,8 +92,57 @@
     </p>
 
     <p>Please choose one:</p>
+    <!-- <b-card no-body> -->
+    <b-tabs content-class="mt-6" id="text-alerts" active-nav-item-class="bg-primary font-weight-bold text-uppercase text-light alert-options">
+      <b-tab title="Opt In" title-link-class="text-info" @click="optInClicked()">
+        <h3>Text Message Opt In</h3>
+        <div id="text-opt-in">
+          <label for="smsDevice1" code="alert.index.textMessage#LABEL" alt="Text Message Number" specialelement="true">Text Message Number</label>
+          <input v-model="smsNumber"
+                 type="tel"
+                 placeholder="555-555-5555"
+                 class="form-control"
+                 id="smsDevice1"
+                 name="smsDevice1"
+                 maxlength="12"
+                 value=""
+                 pattern="\d{3}-?\d{3}-?\d{4}"
+                 title="10-digit phone number"
+                 onkeyup="this.value = formatTelephone(this.value);"
+                 aria-label="10-digit phone number"
+                 :disabled="smsStatusInd"/>
+        <p>
+          <small class="text-muted">
+            Standard text message rates apply. Text messages will come from one of two IDs: 231-77 or 630-79.
+          </small>
+        </p>
+        </div>
+      </b-tab>
+      <b-tab title="Opt Out" title-link-class="text-info" @click="optOutClicked()">
+        <h3>Text Message Opt Out</h3>
+        <div id="text-opt-out">
+          <p>Text messages are an extremely effective way to distribute emergency
+          notifications quickly. If you choose not to register your cell phone
+          number to receive PSU Alert notifications via text message, you may
+          not get necessary information to stay safe in emergency or threatening
+          situations, such as campus closures or threats to your safety (e.g.
+          active shooter, evacuation, etc.).</p>
 
-    <div class="row">
+          <div class="checkbox-card text-center">
+            <label code="alert.index.textOptOut#LABEL" for="opt-out" alt="I acknowledge that I have read and understand the risks described above and I choose to opt out of receiving PSU Alert notifications via text message." specialelement="true">
+              <span class="custom-checkbox"></span>
+              <input id="opt-out" v-model="smsStatusInd" type="checkbox" name="smsStatusInd"/>
+              &nbsp;&nbsp;I acknowledge that I have read and understand the risks described
+              above and <b>I choose to opt out</b> of receiving PSU Alert notifications
+              via text message.
+            </label>
+          </div>
+          <br style="clear: both;">
+        </div>
+      </b-tab>
+    </b-tabs>
+    <!-- </b-card> -->
+    <!-- <div class="row">
       <div class="col-md-6" id="text-opt-in-col">
         <h3>Text Message Opt In</h3>
         <div id="text-opt-in">
@@ -119,10 +168,6 @@
         </div>
       </div>
 
-
-    <!-- <br/><p><b>OR</b></p><br/> -->
-
-
       <div class="col-md-6">
         <h3>Text Message Opt Out</h3>
         <div id="text-opt-out">
@@ -145,7 +190,7 @@
           <br style="clear: both;">
         </div>
       </div>
-    </div>
+    </div> -->
   </div>
   <hr/>
 
@@ -342,6 +387,12 @@ export default {
       })
       .catch(error => console.log(error))
     },
+    optInClicked() {
+      this.smsStatusInd = false
+    },
+    optOutClicked() {
+      this.smsNumber = ''
+    }
   },
 
   //TODO It seems Auth tokens are clearing or not working if we make repeat requests after a refresh. Don't know why.
@@ -389,5 +440,10 @@ export default {
     border-right: 1px solid #DDD;
     border-bottom: 0;
   }
+}
+
+.alert-options, .nav-item {
+  font-size: 1.2em;
+  width: 120%;
 }
 </style>

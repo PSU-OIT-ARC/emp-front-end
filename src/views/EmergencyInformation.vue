@@ -6,10 +6,21 @@
       @timedOut.once="endSession"
     /> -->
     <!-- <SubmitPopup /> -->
-    <StickyNavbar />
+    <!-- <StickyNavbar />
     <EvacAssist />
     <AlertsInformation />
-    <EmergencyContactList />
+    <EmergencyContactList /> -->
+    <div id="sticky-navbar">
+      <div id="nav-container" class="row">
+        <div class="col-md-12">
+        <b-tabs content-class="mt-6" justified style="background-color: #8c9516;">
+        <b-tab title="Evacuation Assistance"><EvacAssist /></b-tab>
+        <b-tab title="PSU Alerts"><AlertsInformation /></b-tab>
+        <b-tab title="Emergency Contacts"><EmergencyContactList /></b-tab>
+        </b-tabs>
+        </div>
+      </div>
+    </div>
 
   </div>
 </template>
