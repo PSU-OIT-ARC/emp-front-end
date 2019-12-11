@@ -91,7 +91,7 @@
         Either enter a text message number or opt-out by reading the notice and checking the box.
     </p>
 
-    <p>Please choose one:</p>
+    <p>Note: changing your choice will reset the form.</p>
     <!-- <b-card no-body> -->
     <b-tabs content-class="mt-6" id="text-alerts" active-nav-item-class="bg-primary font-weight-bold text-uppercase text-light alert-options">
       <b-tab title="Opt In" title-link-class="text-info" @click="optInClicked()">
@@ -201,11 +201,11 @@
     <div class="row">
       <div class="col-md-6">
         <label for="mobilePhone" code="alert.index.businessPhone#LABEL" alt="Primary Phone Number" specialelement="true">Primary Phone Number</label>
-        <input v-model="phoneNumber" type="tel" placeholder="Primary Phone Number" class="form-control" id="mobilePhone" name="mobilePhone" maxlength="12" value="" pattern="\d{3}-?\d{3}-?\d{4}" title="10-digit phone number" onkeyup="this.value = formatTelephone(this.value);" aria-label="10-digit phone number"/>
+        <input v-model="phoneNumber" type="tel" placeholder="555-555-5555" class="form-control" id="mobilePhone" name="mobilePhone" maxlength="12" value="" pattern="\d{3}-?\d{3}-?\d{4}" title="10-digit phone number" aria-label="10-digit phone number"/>
       </div>
       <div class="col-md-6">
         <label for="businessPhone" code="alert.index.mobilePhone#LABEL" alt="Alternate Phone Number" specialelement="true">Alternate Phone Number</label>
-        <input v-model="alternatePhoneNumber" type="tel" placeholder="Alternate Phone Number" class="form-control" id="businessPhone" name="businessPhone" maxlength="12" value="" pattern="\d{3}-?\d{3}-?\d{4}" title="10-digit phone number" onkeyup="this.value = formatTelephone(this.value);" aria-label="10-digit phone number" :disabled="disableAlternateVoiceNumber"/>
+        <input v-model="alternatePhoneNumber" type="tel" placeholder="555-555-5555" class="form-control" id="businessPhone" name="businessPhone" maxlength="12" value="" pattern="\d{3}-?\d{3}-?\d{4}" title="10-digit phone number" aria-label="10-digit phone number" :disabled="disableAlternateVoiceNumber"/>
       </div>
     </div>
     <br style="clear: both;">
@@ -229,13 +229,13 @@ All <i>@pdx.edu</i> email addresses are automatically subscribed to receive PSU 
       </div>
       <div class="col-md-6">
         <label for="emailAddress" code="alert.index.emailAddress#LABEL" alt="Alternate email address" specialelement="true">Alternate email address:</label>
-        <input v-model="alternateEmailAddress" type="email" placeholder="Alternate email address" class="form-control" id="emailAddress" name="emailAddress" value="">
+        <input v-model="alternateEmailAddress" type="email" placeholder="" class="form-control" id="emailAddress" name="emailAddress" value="">
       </div>
     </div>
     <br style="clear: both;">
   </div>
   <hr/>
-  <div class="alert alert-warning text-center">
+  <div :class="formComplete ? 'text-center alert alert-info' : 'text-center alert alert-warning'">
       <p><span style="font-size:1.2em;font-weight:bold">PSU Alert Subscriptions Summary</span></p>
       <p>Text messages:<br/>
       <b>{{ textMessagesSummary }}</b></p>
@@ -292,18 +292,24 @@ export default {
       alternatePhoneNumber: '',
       psuEmailAddress: 'johndoe@pdx.edu',
       alternateEmailAddress: '',
-      formComplete: false,
+      textMsgComplete: false,
+      voiceMsgComplete: true,
+      emailComplete: true,
       disableAlternateVoiceNumber: true,
     }
   },
 
   computed: {
+    formComplete() {
+      return this.textMsgComplete && this.voiceMsgComplete && this.emailComplete
+    },
     textMessagesSummary() {
-      if (!this.smsStatusInd && this.smsNumber.trim().length < 10) {
-        this.formComplete = false;
+      let smsNum = this.smsNumber.trim()
+      if (!this.smsStatusInd && this.checkPhoneFormat(smsNum)) {
+        this.textMsgComplete = false;
         return "INCOMPLETE"
       } else {
-        this.formComplete = true;
+        this.textMsgComplete = true;
       }
       if (this.smsStatusInd) {
         return "OPT OUT"
@@ -326,17 +332,19 @@ export default {
           alternate = 'N/A'
         }
         // Check phone number format
-        var phoneno = /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/;
-        if (primary != 'N/A' && (!primary.length >=10 || !primary.match(phoneno))) {
-          this.formComplete = false;
+
+        if (primary != 'N/A' && this.checkPhoneFormat(primary)) {
+          this.voiceMsgComplete = false;
           return "Primary number invalid format"
         } else {
           this.disableAlternateVoiceNumber = false;
+          this.voiceMsgComplete = true;
         }
-        if (alternate !== 'N/A' && (!alternate.length >=10 || !alternate.match(phoneno))) {
-          this.formComplete = false;
+        if (alternate !== 'N/A' && this.checkPhoneFormat(alternate)) {
+          this.voiceMsgComplete = false;
           return "Alternate number invalid format"
         }
+        this.voiceMsgComplete = true;
         return "SUBSCRIBED with Primary Number: " + primary + ", Alternate number: " + alternate;
       }
     },
@@ -372,7 +380,7 @@ export default {
 
     submitAlertsInformation() {
       //emits event to root to create popup
-      this.$root.$emit('submit');
+      //this.$root.$emit('submit');
 
       var vm = this;
 
@@ -394,6 +402,11 @@ export default {
         }
       }
 
+      // This part is not really working; bodyFormData is empty
+      // TODO: submit emergency info to an API
+      console.log(bodyFormData)
+      alert(JSON.stringify(bodyFormData));
+
       axios({
         method: 'post',
         baseURL: 'http://127.0.0.1:8000/setEmergencyNotifications/',
@@ -406,6 +419,14 @@ export default {
     },
     optOutClicked() {
       this.smsNumber = ''
+    },
+    checkPhoneFormat(phone) {
+      var phoneno = /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/;
+      return !phone.length >=10 || !phone.match(phoneno)
+    },
+    formatTelephone(phone) {
+      alert(phone);
+      return null
     }
   },
 
