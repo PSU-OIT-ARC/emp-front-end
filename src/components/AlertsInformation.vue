@@ -95,7 +95,7 @@
     <!-- <b-card no-body> -->
     <b-tabs content-class="mt-6" id="text-alerts" active-nav-item-class="bg-primary font-weight-bold text-uppercase text-light alert-options">
       <b-tab title="Opt In" title-link-class="text-info" @click="optInClicked()">
-        <h3>Text Message Opt In</h3>
+        <!-- <h3>Text Message Opt In</h3> -->
         <div id="text-opt-in">
           <label for="smsDevice1" code="alert.index.textMessage#LABEL" alt="Text Message Number" specialelement="true">Text Message Number</label>
           <input v-model="smsNumber"
@@ -119,7 +119,7 @@
         </div>
       </b-tab>
       <b-tab title="Opt Out" title-link-class="text-info" @click="optOutClicked()">
-        <h3>Text Message Opt Out</h3>
+        <!-- <h3>Text Message Opt Out</h3> -->
         <div id="text-opt-out">
           <p>Text messages are an extremely effective way to distribute emergency
           notifications quickly. If you choose not to register your cell phone
@@ -205,7 +205,7 @@
       </div>
       <div class="col-md-6">
         <label for="businessPhone" code="alert.index.mobilePhone#LABEL" alt="Alternate Phone Number" specialelement="true">Alternate Phone Number</label>
-        <input v-model="alternatePhoneNumber" type="tel" placeholder="Alternate Phone Number" class="form-control" id="businessPhone" name="businessPhone" maxlength="12" value="" pattern="\d{3}-?\d{3}-?\d{4}" title="10-digit phone number" onkeyup="this.value = formatTelephone(this.value);" aria-label="10-digit phone number"/>
+        <input v-model="alternatePhoneNumber" type="tel" placeholder="Alternate Phone Number" class="form-control" id="businessPhone" name="businessPhone" maxlength="12" value="" pattern="\d{3}-?\d{3}-?\d{4}" title="10-digit phone number" onkeyup="this.value = formatTelephone(this.value);" aria-label="10-digit phone number" :disabled="disableAlternateVoiceNumber"/>
       </div>
     </div>
     <br style="clear: both;">
@@ -293,12 +293,14 @@ export default {
       psuEmailAddress: 'johndoe@pdx.edu',
       alternateEmailAddress: '',
       formComplete: false,
+      disableAlternateVoiceNumber: true,
     }
   },
 
   computed: {
     textMessagesSummary() {
       if (!this.smsStatusInd && this.smsNumber.trim().length < 10) {
+        this.formComplete = false;
         return "INCOMPLETE"
       } else {
         this.formComplete = true;
@@ -315,13 +317,25 @@ export default {
         return "NOT SUBSCRIBED"
       }
       else {
-        let primary = this.phoneNumber;
-        let alternate = this.alternatePhoneNumber;
-        if (primary.trim().length < 1) {
+        let primary = this.phoneNumber.trim();
+        let alternate = this.alternatePhoneNumber.trim();
+        if (primary.length < 1) {
           primary = 'N/A'
         }
-        if (alternate.trim().length < 1) {
+        if (alternate.length < 1) {
           alternate = 'N/A'
+        }
+        // Check phone number format
+        var phoneno = /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/;
+        if (primary != 'N/A' && (!primary.length >=10 || !primary.match(phoneno))) {
+          this.formComplete = false;
+          return "Primary number invalid format"
+        } else {
+          this.disableAlternateVoiceNumber = false;
+        }
+        if (alternate !== 'N/A' && (!alternate.length >=10 || !alternate.match(phoneno))) {
+          this.formComplete = false;
+          return "Alternate number invalid format"
         }
         return "SUBSCRIBED with Primary Number: " + primary + ", Alternate number: " + alternate;
       }
