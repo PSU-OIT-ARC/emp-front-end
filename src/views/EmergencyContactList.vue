@@ -11,8 +11,8 @@
               {{ data.value }}
             </template>
             <template v-slot:cell(actions)="row">
-              <b-button @click="meditContact(row.item)">Edit</b-button>
-              <b-button @click="mdeleteContact(row.index)">Delete</b-button>
+              <b-button @click="mEditContact(row.item)" :disabled="disableActionButton">Edit</b-button>
+              <b-button @click="mDeleteContact(row.index)" :disabled="disableActionButton">Delete</b-button>
             </template>
           </b-table>
           <!-- <div v-for="(contactObject, index) in contacts" :key="contactObject.surrogateId">
@@ -58,9 +58,12 @@
             <p>You have no emergency contacts yet.</p>
           </div>
         </div>
+        <p>
+          <b-button title="create" @click="mCreateContact()" :disabled="disableActionButton">Add new contact</b-button>
+        </p>
         <hr />
-        <div>
-          <h2>Edit/Create Contact</h2>
+        <div v-if="showForm">
+          <h2>{{ formModeName }} Contact</h2>
           <emerg-contact-form
               v-show="activeIndex > -1"
               id="emergency-contact-form"
@@ -69,7 +72,11 @@
               :relationArray="relationArray"
               :stateArray="stateArray"
               :isFetching="isFetching"
+              :formMode="formMode"
+              @closeForm="closeForm"
+              @createContact="createContact"
               @updateContact="updateContact"/>
+              <!-- @(event emitted by child component)=(call method of parent) -->
         </div>
     </div>
 </template>
@@ -165,7 +172,9 @@
 
                 stateArray: [],
                 relationArray: [],
-                countryArray: []
+                countryArray: [],
+                formMode: 0,
+                showForm: false,
             }
         },
 
@@ -176,7 +185,25 @@
           this.getCountryDropdownOptions()
           this.getRelationDropdownOptions()
         },
-
+        computed: {
+          formModeName() {
+            if (this.formMode == 1) {
+              return "Create"
+            }
+            else if (this.formMode == 2) {
+              return "Edit"
+            }
+            else {
+              return ""
+            }
+          },
+          disableActionButton() {
+            if (this.formMode !== 0) {
+              return true;
+            }
+            return false;
+          }
+        },
         methods: {
           fullname(item, key, value) {
             return `${value.firstName} ${value.lastName}`
@@ -194,136 +221,150 @@
             }
             return full_address
           },
-          meditContact(item) {
-            console.log("EditContact" + JSON.stringify(item));
-            this.contactObject = item
-            alert(JSON.stringify(item));
+          mCreateContact() {
+            this.formMode = 1;
+            this.showForm = true;
+            this.contactObject = {};
           },
-          mdeleteContact(index) {
+          createContact(item) {  // "Callback" if form action was 'create'
+            if (item !== 'undefined' && item !== 'null') {
+              this.formMode = 0;
+              this.showForm = false;
+              this.contactObject = item;
+              this.contacts.push(item);
+              //alert(JSON.stringify(this.contactObject));  // for DEBUG only
+            }
+          },
+          mEditContact(item) {
+            console.log("EditContact" + JSON.stringify(item));
+            this.formMode = 2;
+            this.showForm = true;
+            this.contactObject = item;
+            // alert(JSON.stringify(item));       // for DEBUG only
+          },
+          mDeleteContact(index) {
             console.log("Delete contact: " + index);
             this.contacts.splice(index, 1);
           },
-            clearContactForm() {
+          clearContactForm() {
+            var vm = this;
+
+            let blankContact = {}
+
+            for(let localKey in this.localToAPIMap) {
+              if(localKey !== 'surrogateId')
+                blankContact[localKey] = null
+              if(localKey === 'phone_area')
+                blankContact['phone_area'] = 503
+              if(localKey === 'contactPriority')
+                blankContact['contactPriority'] = vm.contacts.length+1
+            }
+
+            // Add blank contact
+            vm.contacts.push(blankContact)
+
+            vm.activeIndex = vm.contacts.length-1;
+            vm.addingContact = true
+          },
+
+          getRelationDropdownOptions() {
+            axios({
+              method: 'get',
+              baseURL: 'http://127.0.0.1:8000/getRelations/',
+            })
+            .then(response => {
+              // var relationCodes = response.data
+              let relationCodes = []
+              for (var i = 0; i < response.data.length; i++) {
+                relationCodes.push({value: response.data[i].code, text: response.data[i].description});
+              }
+              this.relationArray = relationCodes
+              // this.relationArray.unshift({ code: "", description: "N/A" })
+              this.relationArray.unshift({ value: null, text: "N/A" })
+
+              this.resourcesToFetch -= 1
+            })
+            .catch(error => console.log(error.toString()))
+          },
+
+          getStateDropdownOptions() {
+            axios({
+              method: 'get',
+              baseURL: 'http://127.0.0.1:8000/getStateCodes/',
+            })
+            .then(response => {
+              // var stateCodes = response.data
+              let stateCodes = []
+              for (var i = 0; i < response.data.length; i++) {
+                stateCodes.push({value: response.data[i].id, text: " " + response.data[i].value + "(" + response.data[i].id + ")"});
+              }
+              this.stateArray = stateCodes
+              this.stateArray.unshift({ value: null, text: "N/A" })
+
+              this.resourcesToFetch -= 1
+            })
+            .catch(error => console.log(error.toString()))
+          },
+
+          getCountryDropdownOptions() {
+            axios({
+              method: 'get',
+              baseURL: 'http://127.0.0.1:8000/getNationCodes/',
+            })
+            .then(response => {
+              // var countryCodes = response.data
+              let countryCodes = []
+              for (var i = 0; i < response.data.length; i++) {
+                countryCodes.push({value: response.data[i].id, text: response.data[i].value + " (" + response.data[i].phone_code + ")"});
+              }
+              this.countryArray = countryCodes
+              // adding N/A to dropdowns, implementation could be better than hardcoded, undefined on svgimg would pass loading the image
+              // need to check "N/A" value on phone_code whether it pass successfully
+              this.countryArray.unshift({ value: null, text: "N/A", phone_code: "N/A", svgimg: undefined })
+
+              this.resourcesToFetch -= 1
+            })
+            .catch(error => console.log(error.toString()))
+          },
+
+
+          // Grab contacts via axios and bind to Vue model
+          async getEmergencyContactInformation() {
               var vm = this;
 
-              let blankContact = {}
-
-              for(let localKey in this.localToAPIMap) {
-                if(localKey !== 'surrogateId')
-                  blankContact[localKey] = null
-                if(localKey === 'phone_area')
-                  blankContact['phone_area'] = 503
-                if(localKey === 'contactPriority')
-                  blankContact['contactPriority'] = vm.contacts.length+1
-              }
-
-              // Add blank contact
-              vm.contacts.push(blankContact)
-
-              vm.activeIndex = vm.contacts.length-1;
-              vm.addingContact = true
-            },
-
-            getRelationDropdownOptions() {
-              axios({
-                method: 'get',
-                baseURL: 'http://127.0.0.1:8000/getRelations/',
+              await axios({
+                method: 'post',
+                baseURL: 'http://127.0.0.1:8000/getEmergencyContacts/',
               })
               .then(response => {
-                // var relationCodes = response.data
-                let relationCodes = []
-                for (var i = 0; i < response.data.length; i++) {
-                  relationCodes.push({value: response.data[i].code, text: response.data[i].description});
-                }
-                this.relationArray = relationCodes
-                // this.relationArray.unshift({ code: "", description: "N/A" })
-                this.relationArray.unshift({ value: null, text: "N/A" })
+                let receivedContacts = response.data;
 
-                this.resourcesToFetch -= 1
-              })
-              .catch(error => console.log(error.toString()))
-            },
+                // empty the previous contacts
+                vm.contacts.length = 0
 
-            getStateDropdownOptions() {
-              axios({
-                method: 'get',
-                baseURL: 'http://127.0.0.1:8000/getStateCodes/',
-              })
-              .then(response => {
-                // var stateCodes = response.data
-                let stateCodes = []
-                for (var i = 0; i < response.data.length; i++) {
-                  stateCodes.push({value: response.data[i].id, text: " " + response.data[i].value + "(" + response.data[i].id + ")"});
-                }
-                this.stateArray = stateCodes
-                this.stateArray.unshift({ value: null, text: "N/A" })
+                for(let index in receivedContacts) {
+                  let data = receivedContacts[index]
 
-                this.resourcesToFetch -= 1
-              })
-              .catch(error => console.log(error.toString()))
-            },
+                  // Create object to hold contact information
+                  // let contactObject = {}
 
-            getCountryDropdownOptions() {
-              axios({
-                method: 'get',
-                baseURL: 'http://127.0.0.1:8000/getNationCodes/',
-              })
-              .then(response => {
-                // var countryCodes = response.data
-                let countryCodes = []
-                for (var i = 0; i < response.data.length; i++) {
-                  countryCodes.push({value: response.data[i].id, text: response.data[i].value + " (" + response.data[i].phone_code + ")"});
-                }
-                this.countryArray = countryCodes
-                // adding N/A to dropdowns, implementation could be better than hardcoded, undefined on svgimg would pass loading the image
-                // need to check "N/A" value on phone_code whether it pass successfully
-                this.countryArray.unshift({ value: null, text: "N/A", phone_code: "N/A", svgimg: undefined })
-
-                this.resourcesToFetch -= 1
-              })
-              .catch(error => console.log(error.toString()))
-            },
-
-
-            // Grab contacts via axios and bind to Vue model
-            async getEmergencyContactInformation() {
-                var vm = this;
-
-                await axios({
-                  method: 'post',
-                  baseURL: 'http://127.0.0.1:8000/getEmergencyContacts/',
-                })
-                .then(response => {
-                  let receivedContacts = response.data;
-
-                  // empty the previous contacts
-                  vm.contacts.length = 0
-
-                  for(let index in receivedContacts) {
-                    let data = receivedContacts[index]
-
-                    // Create object to hold contact information
-                    // let contactObject = {}
-
-                    // Fill object mapping from API names to more readable names
-                    for(let APIKey in data) {
-                      let localKey = vm.APIToLocal(APIKey)
-                      vm.contactObject[localKey] = data[APIKey]
-                    }
-
-                    vm.contacts.push(contactObject)
+                  // Fill object mapping from API names to more readable names
+                  for(let APIKey in data) {
+                    let localKey = vm.APIToLocal(APIKey)
+                    vm.contactObject[localKey] = data[APIKey]
                   }
 
-                  // Sort the contacts by priority for sorted display
-                  let sortByPriority = (a, b) => a.contactPriority < b.contactPriority ? -1 : 1
-                  vm.contacts.sort(sortByPriority)
+                  vm.contacts.push(contactObject)
+                }
 
-                  vm.resourcesToFetch -= 1
-                })
-                .catch(error => console.log(error.toString()))
+                // Sort the contacts by priority for sorted display
+                let sortByPriority = (a, b) => a.contactPriority < b.contactPriority ? -1 : 1
+                vm.contacts.sort(sortByPriority)
+
+                vm.resourcesToFetch -= 1
+              })
+              .catch(error => console.log(error.toString()))
             },
-
-
             // Handler for updateContact events emitted by EmergContactForm components
             updateContact(contactObject) {
               var vm = this;
@@ -400,7 +441,11 @@
               if(str === 'null')
                 return ''
               return str
-            }
+            },
+          closeForm() {
+            this.formMode = 0;
+            this.showForm = false;
+          }
         },
 
         watch: {

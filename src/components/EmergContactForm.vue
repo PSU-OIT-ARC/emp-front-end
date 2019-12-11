@@ -203,10 +203,12 @@
 
       </div>
       <div class="button-holder">
-        <button type="button" class="btn btn-lg btn-primary" v-on:click="updateContact()">Submit</button>&nbsp;&nbsp;&nbsp;
-        <button type="button" class="btn btn-lg reset" @click="resetContact()">Reset Form</button>
+        <b-button v-if="formMode==1" variant="primary" v-on:click="createContact()">Create</b-button>&nbsp;&nbsp;
+        <b-button v-if="formMode==2" variant="primary" v-on:click="updateContact()">Save changes</b-button>&nbsp;&nbsp;
+        <b-button @click="resetContact()">Reset form</b-button>&nbsp;&nbsp;
           <!-- <button type="button" class="submit" @click="updateContact()">Submit</button>
           <button type="button" class="reset" @click="resetContact()">Reset</button> -->
+        <b-button id="cancelButton" variant="link" @click="closeForm()" title="Close form">Cancel</b-button>
       </div>
     </div>
 </template>
@@ -229,7 +231,8 @@
           'stateArray',
           'relationArray',
           'countryCodeArray',
-          'isFetching'
+          'isFetching',
+          'formMode'
         ],
 
         data: function() {
@@ -381,10 +384,14 @@
                 this.relation = relationObject.code;
                 this['selectedRelation'] = this.findRelationByCode(this.relation)
             },
-
+            createContact() {
+              var vm = this;
+              let contactObject = vm.toContactObject();
+              vm.$emit('createContact', contactObject);
+            },
             updateContact() {
               //emit event to root so popup appears
-              this.$root.$emit('submit');
+              //this.$root.$emit('submit');
 
               var vm = this;
               let contactObject = vm.toContactObject();
@@ -453,6 +460,9 @@
 
                 // The given code matches no state
                 return null;
+            },
+            closeForm() {
+              this.$emit('closeForm');
             }
         }
     }
