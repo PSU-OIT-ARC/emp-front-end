@@ -76,21 +76,28 @@
               @closeForm="closeForm"
               @createContact="createContact"
               @updateContact="updateContact"/>
-              <!-- @(event emitted by child component)=(call method of parent) -->
+              <!-- Note: @(event emitted by child component)=(call method of parent) -->
         </div>
+        <!-- Inject modal with custom contents -->
+        <modal v-if="showModal" @cancel="showModal = false" @confirm="confirmDelete()">
+          <h3 slot="header">Confirm Deletion</h3>
+          <p slot="body">Are you sure you want to delete this contact?<br/><b>{{ toDelete.name }}</b></p>
+        </modal>
     </div>
 </template>
 
 <script>
     import { CollapseTransition } from 'vue2-transitions'
     import EmergContactForm from '@/components/EmergContactForm.vue'
+    import Modal from '@/components/Modal.vue'
     import axios from 'axios'
 
     export default {
         name: "EmergencyContactList",
         components: {
             EmergContactForm,
-            CollapseTransition
+            CollapseTransition,
+            Modal
         },
         data: function() {
             return {
@@ -175,6 +182,8 @@
                 countryArray: [],
                 formMode: 0,
                 showForm: false,
+                showModal: false,
+                toDelete: {}
             }
         },
 
@@ -244,7 +253,17 @@
           },
           mDeleteContact(index) {
             console.log("Delete contact: " + index);
-            this.contacts.splice(index, 1);
+            this.$root.$emit('submit');
+            this.showModal = true;
+            this.toDelete = { id: index,
+                              name: this.contacts[index].firstName + " " + this.contacts[index].lastName
+                            }
+            // this.contacts.splice(index, 1);
+          },
+          confirmDelete() {
+            this.contacts.splice(this.toDelete.id, 1);
+            this.showModal = false;
+            this.toDelete = {}
           },
           clearContactForm() {
             var vm = this;
@@ -366,6 +385,7 @@
               .catch(error => console.log(error.toString()))
             },
             // Handler for updateContact events emitted by EmergContactForm components
+            // TODO: Make contact list table updated when contact is updated. Currently the changes are not showing in the table.
             updateContact(contactObject) {
               var vm = this;
 
